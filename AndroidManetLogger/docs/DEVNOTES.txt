@@ -1,0 +1,23 @@
+[Necessary] Ensure that your version of Android NDK supports the "target=android-<X>" version 
+listed in the "<PROJ_ROOT>/project.properties".
+
+
+[Necessary] Ensure you set the "AOSP_PATH" path in "<PROJ_ROOT>/jni/Android.mk" 
+to the top-level dir of the Android Open Source Project source code on your system.
+
+
+[Optional] Configure Eclipse to build native code automatically:
+
+http://mobilepearls.com/labs/ndk-builder-in-eclipse/
+
+In Eclipse, Go to Project -> Properties -> Builders -> NDK Builder -> Edit ... -> Main -> Location
+to set the location of the Android NDK "ndk-build" file on your system.
+
+
+[Optional] Debug native executables in Eclipse:
+
+http://mhandroid.wordpress.com/2011/01/23/using-eclipse-for-android-cc-debugging/
+
+ndk-gdb --verbose
+
+adb shell run-as android.adhoc/system/bin/sh -c pwd
