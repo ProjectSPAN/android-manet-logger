@@ -131,6 +131,14 @@
     <string name="routing_info_layout_category_all">Routing</string>
     <string name="routing_info_layout_neighbors">Neighbors</string>
     <string name="routing_info_layout_neighbors_summary">Info about neighbors</string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitude">Longitude:</string>
+    <string name="battery">Battery:</string>
+    <string name="temperature">Temperature:</string>
+    <string name="voltage">Voltage:</string>
+    <string name="timestamp">Timestamp:</string>
+    <string name="minfo">ManetInfo</string>
+    
     
     <string-array name="notificationmodenames">  
 		<item>None</item>  

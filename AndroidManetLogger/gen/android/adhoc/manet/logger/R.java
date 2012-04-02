@@ -25,18 +25,35 @@ public final class R {
     public static final class attr {
     }
     public static final class drawable {
-        public static final int logger_notification=0x7f020000;
-        public static final int service_icon_64=0x7f020001;
-        public static final int start_notification=0x7f020002;
-        public static final int stop_notification=0x7f020003;
+        public static final int ic_launcher=0x7f020000;
+        public static final int logger_notification=0x7f020001;
+        public static final int service_icon_64=0x7f020002;
+        public static final int start_notification=0x7f020003;
+        public static final int stop_notification=0x7f020004;
     }
     public static final class id {
-        public static final int norootscrollview=0x7f060000;
+        public static final int battery=0x7f06000b;
+        public static final int batteryLabel=0x7f060004;
+        public static final int latitude=0x7f060009;
+        public static final int latitudeLabel=0x7f060002;
+        public static final int longitude=0x7f06000a;
+        public static final int longitudeLabel=0x7f060003;
+        public static final int minfo=0x7f06000e;
+        public static final int minfoLabel=0x7f060007;
+        public static final int norootscrollview=0x7f06000f;
+        public static final int relativeLayout1=0x7f060000;
+        public static final int temperature=0x7f06000d;
+        public static final int temperatureLabel=0x7f060006;
+        public static final int timestamp=0x7f060008;
+        public static final int timestampLabel=0x7f060001;
+        public static final int voltage=0x7f06000c;
+        public static final int voltageLabel=0x7f060005;
     }
     public static final class layout {
         public static final int main=0x7f030000;
-        public static final int nonetfilterview=0x7f030001;
-        public static final int norootview=0x7f030002;
+        public static final int main2=0x7f030001;
+        public static final int nonetfilterview=0x7f030002;
+        public static final int norootview=0x7f030003;
     }
     public static final class string {
         public static final int about_layout_authors=0x7f04006b;
@@ -45,6 +62,7 @@ public final class R {
         public static final int about_layout_projecthome=0x7f040069;
         public static final int about_layout_software=0x7f04006d;
         public static final int about_layout_version=0x7f040068;
+        public static final int battery=0x7f040083;
         public static final int bt_warning_line1=0x7f040076;
         public static final int bt_warning_line2=0x7f040077;
         public static final int clientrow_layout_ipaddress=0x7f040070;
@@ -59,11 +77,13 @@ public final class R {
         public static final int global_service_name=0x7f040000;
         public static final int hello=0x7f040001;
         public static final int hint_message_waiting=0x7f04007b;
+        public static final int latitude=0x7f040081;
         public static final int lbl_scroll_lock=0x7f04007a;
         /**  <string name="main_activity_trackball_pressed_start">Trackball pressed. Confirm tether start.</string> 
  <string name="main_activity_trackball_pressed_stop">Trackball pressed. Confirm tether stop.</string> 
          */
         public static final int log_activity_nologfile=0x7f040024;
+        public static final int longitude=0x7f040082;
         public static final int main_activity_about=0x7f04000a;
         public static final int main_activity_cancel=0x7f040023;
         public static final int main_activity_close=0x7f04000f;
@@ -92,18 +112,19 @@ public final class R {
         public static final int main_activity_stop_summary=0x7f040021;
         /**  Below values don't need to be translated 
          */
-        public static final int main_activity_temperatureunit_celsius=0x7f040081;
-        public static final int main_activity_temperatureunit_fahrenheit=0x7f040082;
+        public static final int main_activity_temperatureunit_celsius=0x7f040088;
+        public static final int main_activity_temperatureunit_fahrenheit=0x7f040089;
         public static final int main_activity_yes=0x7f040014;
         public static final int main_layout_download=0x7f040027;
         public static final int main_layout_lock=0x7f040029;
         public static final int main_layout_presstostart=0x7f040025;
         public static final int main_layout_presstostop=0x7f040026;
         public static final int main_layout_upload=0x7f040028;
+        public static final int minfo=0x7f040087;
         public static final int nonetfilter_layout_line1=0x7f040071;
         public static final int nonetfilter_layout_line2=0x7f040072;
         public static final int noroot_layout_line1=0x7f040073;
-        public static final int paypalUrl=0x7f040083;
+        public static final int paypalUrl=0x7f04008a;
         public static final int permission_manet=0x7f040008;
         public static final int prompt_destination_spinner=0x7f04007d;
         public static final int routing_info_layout_category_all=0x7f04007e;
@@ -172,9 +193,12 @@ public final class R {
         public static final int setup_layout_wifiencryption=0x7f04004b;
         public static final int setup_layout_wifiencryption_summary=0x7f04004c;
         public static final int start_notification_line=0x7f04007c;
+        public static final int temperature=0x7f040084;
+        public static final int timestamp=0x7f040086;
         public static final int txpower_warning_line1=0x7f040078;
         public static final int txpower_warning_line2=0x7f040079;
         public static final int update_layout_line1=0x7f040074;
         public static final int update_layout_line2=0x7f040075;
+        public static final int voltage=0x7f040085;
     }
 }
