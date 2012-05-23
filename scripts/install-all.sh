@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#SPAN - Smart Phone AdHoc Networking project
+#©2012 The MITRE Corporation
+
 # usage: 
 # ./scripts/install-all.sh
 
