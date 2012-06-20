@@ -28,8 +28,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class ManetLoggerService extends Service{
-
-	private int LOG_INTERVAL = 30000; //Default 30s
+	
 	private static final String TAG = "ManetLoggerService";
 	private ManetLoggerHelper helper = null;
 	private NotificationManager notifier = null;
@@ -39,8 +38,13 @@ public class ManetLoggerService extends Service{
 	private Timer timer = null;
 
 	private final IBinder mBinder = new ManetLogBinder();
+	
 	// unique id for the notification
 	private static final int NOTIFICATION_ID = 0;
+	
+	private static final int GPS_REQUEST_INTERVAL_MILLISEC = 20000;
+	
+	public static final int LOG_INTERVAL_MILLISEC = 30000;
 
 	@Override
 	public void onCreate() {
@@ -73,7 +77,7 @@ public class ManetLoggerService extends Service{
 			  //this.service.requestLocationEnable();
 			}
 		helper.setLocation(locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER));
-		locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOG_INTERVAL, 1, 
+		locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_REQUEST_INTERVAL_MILLISEC, 1, 
 			new LocationListener(){
 				@Override
 				public void onLocationChanged(Location arg0) {
@@ -110,8 +114,7 @@ public class ManetLoggerService extends Service{
 		
 	}
 	
-	private void beginLogging()
-	{
+	private void beginLogging() {
 		timer = new Timer();
 		Log.i(TAG, "Begin Logging");
 		timer.scheduleAtFixedRate(new TimerTask() {
@@ -119,7 +122,7 @@ public class ManetLoggerService extends Service{
 			public void run() {
 				helper.createLogEntry();
 			}
-		}, 0, LOG_INTERVAL);
+		}, 0, LOG_INTERVAL_MILLISEC);
 	}
 	
 	private void endLogging(){
@@ -158,19 +161,7 @@ public class ManetLoggerService extends Service{
 		}
 	}
 
-	public int getLogInterval(){
-		return this.LOG_INTERVAL;
-	}
-	
-	public void setLogInterval(int i){
-		this.LOG_INTERVAL = i;
-	}
-
 	public String[] getLatestLogInfo(){
 		return helper.getLatestLogInfo(); 
 	}
-
-	
-	
-
 }

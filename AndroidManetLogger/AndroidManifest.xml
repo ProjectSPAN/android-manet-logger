@@ -6,25 +6,20 @@
     
     <uses-sdk android:minSdkVersion="9" />
     
-    <!-- NOTE: create a custom permission for the MANET service (user must accept permission upon install) -->
-    <permission android:name="android.adhoc.manet.permission.MANET"
-      android:description="@string/permission_manet"
-      android:protectionLevel="normal" />
-    
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />  
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
     <!-- NOTE: receiver and service tags must be embedded within application tag -->
-    <application android:icon="@drawable/service_icon_64" 
-        android:logo="@drawable/service_icon_64" 
+    <application android:icon="@drawable/gear_icon_48" 
+        android:logo="@drawable/gear_icon_48" 
         android:label="@string/global_service_name"
         android:debuggable="true">
    
-        
         <activity android:name="android.adhoc.manet.logger.ManetLoggerActivity"
             android:label="@string/global_service_name" >
             <intent-filter>

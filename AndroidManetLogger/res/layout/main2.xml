@@ -73,56 +73,49 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/timestampLabel"
             android:layout_marginLeft="60dp"
-            android:layout_toRightOf="@+id/voltageLabel"
-            android:text="00/00/0000 00:00:00" />
+            android:layout_toRightOf="@+id/voltageLabel" />
 
         <TextView
             android:id="@+id/latitude"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/timestamp"
-            android:layout_alignTop="@+id/latitudeLabel"
-            android:text="00.0000000" />
+            android:layout_alignTop="@+id/latitudeLabel" />
 
         <TextView
             android:id="@+id/longitude"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/latitude"
-            android:layout_alignTop="@+id/longitudeLabel"
-            android:text="00.0000000" />
+            android:layout_alignTop="@+id/longitudeLabel" />
 
         <TextView
             android:id="@+id/battery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/voltageLabel"
-            android:layout_alignLeft="@+id/longitude"
-            android:text="00/00" />
+            android:layout_alignLeft="@+id/longitude" />
 
         <TextView
             android:id="@+id/voltage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/battery"
-            android:layout_alignTop="@+id/voltageLabel"
-            android:text="0000 mV" />
+            android:layout_alignTop="@+id/voltageLabel" />
 
         <TextView
             android:id="@+id/temperature"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/voltage"
-            android:layout_alignTop="@+id/temperatureLabel"
-            android:text="00 °C" />
+            android:layout_alignTop="@+id/temperatureLabel" />
 
         <TextView
             android:id="@+id/minfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/temperature"
-            android:layout_alignTop="@+id/minfoLabel"
-            android:text="SampleManetRoutingInfo Honk honk Blargh" />
+            android:layout_alignTop="@+id/minfoLabel"/>
 
     </RelativeLayout>
 
