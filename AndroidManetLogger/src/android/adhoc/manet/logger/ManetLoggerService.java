@@ -42,9 +42,9 @@ public class ManetLoggerService extends Service{
 	// unique id for the notification
 	private static final int NOTIFICATION_ID = 0;
 	
-	private static final int GPS_REQUEST_INTERVAL_MILLISEC = 20000;
+	private static final int GPS_REQUEST_INTERVAL_MILLISEC = 33000;
 	
-	public static final int LOG_INTERVAL_MILLISEC = 30000;
+	public static final int LOG_INTERVAL_MILLISEC = 10000;
 
 	@Override
 	public void onCreate() {
