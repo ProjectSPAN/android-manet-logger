@@ -202,9 +202,11 @@ public class ManetLoggerHelper implements ManetObserver {
 		@Override
 		public void run() {
 			minfo = null;
-			manet.sendRoutingInfoQuery();
-			while (minfo == null) {
-				Thread.yield();
+			if (manet.isConnectedToService()) {
+				manet.sendRoutingInfoQuery();
+				while (minfo == null) {
+					Thread.yield();
+				}
 			}
 		}
 	}
