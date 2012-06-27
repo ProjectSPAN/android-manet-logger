@@ -18,13 +18,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class ManetLoggerActivity extends Activity {
 	
 	private static final String TAG = "ManetLoggerActivity";
 	
-	private ManetLoggerService logService;
+	private ManetLoggerService logService = null;
 	
 	private String[] fields = null;
 	
@@ -42,17 +45,48 @@ public class ManetLoggerActivity extends Activity {
 	
 	private Handler handler = new Handler();
 	
+	private ToggleButton btnOnOff = null;
+	private Button btnClearLog = null;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main2);
-        doBindService();
+        
+        setContentView(R.layout.main);
+        
+        btnOnOff = (ToggleButton) findViewById(R.id.btnOnOff);
+        btnOnOff.setOnClickListener(new View.OnClickListener() {
+	  		public void onClick(View v) {
+	  			// sanity check; logger should represent button state prior to being toggled
+	  			if (logService.isLogging() == btnOnOff.isChecked()) {
+	  				Log.e(TAG, "Error: Toggle button does not represent logger state!"); // DEBUG
+	  				System.exit(1); // abnormal status
+	  			}
+	  			if (!logService.isLogging()) {
+	  				logService.beginLogging();
+	  			} else {
+	  				logService.endLogging();
+	  			}
+	  			logService.showNotification();
+	  		}
+		});
+        
+        btnClearLog = (Button) findViewById(R.id.btnClearLog);
+	  	btnClearLog.setOnClickListener(new View.OnClickListener() {
+	  		public void onClick(View v) {
+	  			logService.clearLog();
+	  		}
+		});
+	  	
+   		// start logger service so that it runs even if no active activities are bound to it
+   		startService(new Intent(this, ManetLoggerService.class));
     }
     
     @Override
     public void onPause(){
     	super.onPause();
+    	
 		if(timer != null){
 			timer.cancel();
 		}
@@ -65,15 +99,20 @@ public class ManetLoggerActivity extends Activity {
 		TextView t = (TextView)findViewById(R.id.timestamp);
 		t.setText("Waiting ...");
     	
+   		bindService(new Intent(this, ManetLoggerService.class), svcConnection , Context.BIND_AUTO_CREATE);
+		
     	runUpdater();
     }
     
+    @Override
     public void onDestroy(){
-		Log.i(TAG, "onDestroy() called");
 		super.onDestroy();
+		
 		if(timer != null){
 			timer.cancel();
 		}
+		
+		unbindService(svcConnection);
     }
     
 	private ServiceConnection svcConnection = new ServiceConnection() {
@@ -93,17 +132,13 @@ public class ManetLoggerActivity extends Activity {
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				if (logService != null) {
+				if (logService != null && logService.isLogging()) {
 					fields = logService.getLatestLogInfo();
 					handler.post(new UpdateRunnable());
 				}
 			}
 		}, 0, UPDATE_WAIT_TIME_MILLISEC);
 	}
-        
-    void doBindService(){
-        bindService(new Intent(this, ManetLoggerService.class), svcConnection , Context.BIND_AUTO_CREATE);
-    }
     
     private class UpdateRunnable implements Runnable {
 		 @Override

@@ -44,12 +44,12 @@ public class ManetLoggerHelper implements ManetObserver {
      
     private static final String LOG_FILE = Environment.getExternalStorageDirectory() + "/manet.log";
     
-	FileWriter fWriter = null;
-	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+    private File file = null;
+	private FileWriter fWriter = null;
+	private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
 	
 	// MANET helper
 	public ManetHelper manet = null;
-
 
 	public ManetLoggerHelper(ManetLoggerService MLService){
 		this.logService = MLService;
@@ -57,54 +57,84 @@ public class ManetLoggerHelper implements ManetObserver {
         // init MANET helper
 		manet = new ManetHelper(logService);
 		manet.registerObserver(this);
+	}
 		
+	public void setup(){
 		// connect to MANET service
         if (!manet.isConnectedToService()) {
 			manet.connectToService();
         }
 	}
-		
-	public void setup(){
 	
-		//Setup the File IO
-		File file = new File(LOG_FILE);
-		boolean exists = file.exists();
-		try{
-			fWriter = new FileWriter(file, true);
-			if(!exists){
-				Log.i(TAG, "Log file did not exist. Creating and initializing");
-				//fWriter.write("Timestamp\tBatteryInfo\tGPSInfo\taccelerometerInfo\tManetInfo\n");
-				//fWriter.flush();
-			}else{
-				Log.i(TAG, "Log File found. Continuing Log.");
+	public void teardown() {
+		// disconnect from MANET service
+        if (manet.isConnectedToService()) {
+			manet.disconnectFromService();
+        }
+	}
+	
+	public synchronized void createLog() {
+		try {
+			//Setup the File IO
+			file = new File(LOG_FILE);
+			if (!file.exists()) {
+				file.createNewFile();
 			}
-		}catch(Exception e){
+			fWriter = new FileWriter(file, true);
+		} catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	
-	private void writeLog(String s){
-		try{
-			fWriter.write(s);
-			fWriter.flush();
-			Log.d(TAG, "Entry Logged");
-		}catch(Exception e){
+	public synchronized void deleteLog(){
+		try {
+			if (file != null) {
+				file.delete();
+				fWriter.close();
+				file = null;
+			}
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private synchronized void writeLog(String s){
+		try {
+			if (file != null) {
+				fWriter.write(s);
+				fWriter.flush();
+				Log.d(TAG, "Entry Logged");
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// generate info on-demand
+	private void generateLogInfo() {
+		// timestamp
+		timestamp = sdf.format(new Date());
+		// manet
+		try {
+			GetManetInfoThread thread = new GetManetInfoThread();
+			thread.start();
+			thread.join(ManetLoggerService.LOG_INTERVAL_MILLISEC/2);
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public String createLogEntry(){
-		timestamp = sdf.format(new Date());
+		generateLogInfo();
+		
+		String timestampInfo = getTimestampInfo();
 		String batteryInfo = getBatteryInfo();
 		String gpsInfo = getGPSInfo();
 		// String accelerometerInfo = getAccelerometerInfo();
-		
-		String manetInfo = getManetInfo().trim();
-		manetInfo = manetInfo.replace("\n\n", ", ");
-		manetInfo = manetInfo.replace("\n", " ");
+		String manetInfo = getManetInfo();
 		
 		String logEntry = 
-			timestamp +
+			timestampInfo +
 			", " + batteryInfo +
 			", " + gpsInfo +
 			", " + manetInfo + 
@@ -127,48 +157,9 @@ public class ManetLoggerHelper implements ManetObserver {
 	public void setLocation(Location l){
 		this.location = l;
 	}
-	public int getBatt_scale() {
-		return batt_scale;
-	}
 	
-	public void setBatt_scale(int batt_scale) {
-		this.batt_scale = batt_scale;
-	}
-	
-	public int getBatt_level() {
-		return batt_level;
-	}
-	
-	public void setBatt_level(int batt_level) {
-		this.batt_level = batt_level;
-	}
-	
-	public int getBatt_voltage() {
-		return batt_voltage;
-	}
-	
-	public void setBatt_voltage(int batt_voltage) {
-		this.batt_voltage = batt_voltage;
-	}
-	
-	public int getBatt_temp() {
-		return batt_temp;
-	}
-	
-	public void setBatt_temp(int batt_temp) {
-		this.batt_temp = batt_temp;
-	}
-	
-	public String getTimestamp() {
-		return timestamp;
-	}
-	
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
-	}
-	
-	public Location getLocation() {
-		return location;
+	public String getTimestampInfo(){
+		return "Timestamp: " + timestamp;
 	}
 	
 	public String getBatteryInfo(){
@@ -183,18 +174,13 @@ public class ManetLoggerHelper implements ManetObserver {
 	}
 	
 	public String getManetInfo(){
-		// return "sample manet info";
-		try {
-			GetManetInfoThread thread = new GetManetInfoThread();
-			thread.start();
-			thread.join(ManetLoggerService.LOG_INTERVAL_MILLISEC/2);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		if (minfo == null) {
 			return "none";
 		} else {
-			return minfo;
+			String manetInfo = minfo.trim();
+			manetInfo = manetInfo.replace("\n\n", ", ");
+			manetInfo = manetInfo.replace("\n", " ");
+			return manetInfo;
 		}
 	}
 	
@@ -215,6 +201,7 @@ public class ManetLoggerHelper implements ManetObserver {
 		return "sample accelerometer info";
 	}
 	
+	// logger UI
 	public String[] getLatestLogInfo() {
 		
 		String[] fields = new String[7];
@@ -235,7 +222,7 @@ public class ManetLoggerHelper implements ManetObserver {
 		if (this.minfo == null || this.minfo.equals("")) {
 			fields[6] = "none";
 		} else {
-			fields[6] = this.minfo;
+			fields[6] = this.minfo.split("\n")[0] + " ...";
 		}
 		
 		return fields;

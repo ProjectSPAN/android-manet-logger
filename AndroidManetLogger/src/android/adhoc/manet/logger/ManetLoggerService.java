@@ -7,12 +7,12 @@ package android.adhoc.manet.logger;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.adhoc.manet.logger.*;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -23,21 +23,28 @@ import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
-import android.widget.Toast;
 
 public class ManetLoggerService extends Service{
 	
 	private static final String TAG = "ManetLoggerService";
+	
 	private ManetLoggerHelper helper = null;
 	private NotificationManager notifier = null;
 	private LocationManager locMan = null; 
 	private Notification notification = null;
 	private PendingIntent pendingIntent = null;
 	private Timer timer = null;
+	private BroadcastReceiver batteryReceiver = null;
+	private boolean isLogging = false;
 
 	private final IBinder mBinder = new ManetLogBinder();
+	
+	// power management
+	private static PowerManager powerManager = null;
+	private static PowerManager.WakeLock wakeLock = null;
 	
 	// unique id for the notification
 	private static final int NOTIFICATION_ID = 0;
@@ -46,17 +53,25 @@ public class ManetLoggerService extends Service{
 	
 	public static final int LOG_INTERVAL_MILLISEC = 10000;
 
+	
 	@Override
 	public void onCreate() {
-		Log.i(TAG, "onCreate() called");
 		super.onCreate();
 		
 		//Setup ManetLoggerHelper
 		helper = new ManetLoggerHelper(this);
 		helper.setup();
 		
+		showNotification();
+		
+        // power management
+		PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    	wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "LOGGER_WAKE_LOCK");
+        wakeLock.setReferenceCounted(false);
+        wakeLock.acquire();
+		
 		//Setup Battery Receiver
-		BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
+		batteryReceiver = new BroadcastReceiver() {
 	        @Override
 	        public void onReceive(Context context, Intent intent) {
 	           Log.i(TAG, "BatteryReciever recieved update");
@@ -75,7 +90,7 @@ public class ManetLoggerService extends Service{
 		boolean locationEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER);
 		if (!locationEnabled) {
 			  //this.service.requestLocationEnable();
-			}
+		}
 		helper.setLocation(locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER));
 		locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_REQUEST_INTERVAL_MILLISEC, 1, 
 			new LocationListener(){
@@ -98,44 +113,23 @@ public class ManetLoggerService extends Service{
 				}
 			}
 		);
-
-
-		beginLogging();
-		
 	}
 
 	@Override
 	public void onDestroy(){
-		Log.i(TAG, "onDestroy() called");
 		super.onDestroy();
+		
 		if(timer != null){
 			timer.cancel();
 		}
 		
+		wakeLock.release();
+		
+		unregisterReceiver(batteryReceiver);
+		
+		helper.teardown();
 	}
 	
-	private void beginLogging() {
-		timer = new Timer();
-		Log.i(TAG, "Begin Logging");
-		timer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				helper.createLogEntry();
-			}
-		}, 0, LOG_INTERVAL_MILLISEC);
-	}
-	
-	private void endLogging(){
-		Log.i(TAG, "End Logging");
-		timer.cancel();
-		timer.purge();
-	}
-	
-    public void requestLocationEnable(){
-    	Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-    	startActivity(intent);
-    }
-    
 	@Override
 	public void onStart(Intent intent, int startId) {
 		super.onStart(intent, startId);
@@ -146,22 +140,97 @@ public class ManetLoggerService extends Service{
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		return START_STICKY; // run service until explicitly stopped   
 	}
-	
-
-	
 	@Override
 	public IBinder onBind(Intent arg0) {
 		return mBinder;
 	}
+	
+	public boolean isLogging() {
+		return isLogging;
+	}
 
+	public void beginLogging() {
+		Log.i(TAG, "Begin Logging");
+		isLogging = true;
+		helper.createLog();
+		timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				helper.createLogEntry();
+			}
+		}, 0, LOG_INTERVAL_MILLISEC);
+	}
+	
+	public void endLogging(){
+		Log.i(TAG, "End Logging");
+		timer.cancel();
+		timer.purge();
+		isLogging = false;
+	}
+	
+	public void clearLog(){
+		Log.i(TAG, "Clear log");
+		helper.deleteLog();
+		helper.createLog();
+	}
+	
+    public void requestLocationEnable(){
+    	Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+    	startActivity(intent);
+    }
+	
+	public String[] getLatestLogInfo(){
+		return helper.getLatestLogInfo(); 
+	}
+	
+	public void showNotification() {
+		
+		int icon;
+		String content = null;
+		if (isLogging()) {
+			icon = R.drawable.on_notification;
+			content = "Logger is running.";
+		} else {
+			icon = R.drawable.off_notification;
+			content = "Logger is not running.";
+		}
+		
+    	if (notifier == null || notification.icon != icon) {
+    		// get reference to notifier
+    		notifier = (NotificationManager)getSystemService(NOTIFICATION_SERVICE); 
+    		
+	    	// set the icon, ticker text, and timestamp        
+	    	notification = 
+	    		new Notification(icon, content, System.currentTimeMillis());
+	    	
+	    	// prevent service from being killed with "no longer want"
+	    	startForeground(NOTIFICATION_ID, notification);
+	
+	    	// pending intent to launch main activity if the user selects notification        
+	    	// pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, DummyActivity.class), 0);
+	    	
+	    	Intent launchIntent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
+	    	launchIntent.setComponent(new ComponentName("android.adhoc.manet.logger", "android.adhoc.manet.logger.ManetLoggerActivity"));
+	    	pendingIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
+	    	
+	    	// don't allow user to clear notification
+	    	notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
+    	} else {
+    		// set the ticker text
+    		notification.tickerText = content;
+    	}
+
+    	// set the info for the views that show in the notification panel    
+    	notification.setLatestEventInfo(this, "MANET Logger", content, pendingIntent);
+    	
+    	// send the notification        
+    	notifier.notify(NOTIFICATION_ID, notification);
+    }
 	
 	public class ManetLogBinder extends Binder {
 		ManetLoggerService getService() {
 			return ManetLoggerService.this;
 		}
-	}
-
-	public String[] getLatestLogInfo(){
-		return helper.getLatestLogInfo(); 
 	}
 }
