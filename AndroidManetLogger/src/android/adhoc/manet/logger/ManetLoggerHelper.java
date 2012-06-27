@@ -79,7 +79,7 @@ public class ManetLoggerHelper implements ManetObserver {
 			file = new File(LOG_FILE);
 			if (!file.exists()) {
 				file.createNewFile();
-			}
+			} // otherwise append
 			fWriter = new FileWriter(file, true);
 		} catch(Exception e){
 			e.printStackTrace();
@@ -89,8 +89,8 @@ public class ManetLoggerHelper implements ManetObserver {
 	public synchronized void deleteLog(){
 		try {
 			if (file != null) {
-				file.delete();
 				fWriter.close();
+				file.delete();
 				file = null;
 			}
 		} catch(Exception e){
@@ -219,10 +219,14 @@ public class ManetLoggerHelper implements ManetObserver {
 		fields[4] = this.batt_voltage + " mV";
 		fields[5] = this.batt_temp + " °C";
 		
-		if (this.minfo == null || this.minfo.equals("")) {
+		if (this.minfo == null) {
 			fields[6] = "none";
 		} else {
-			fields[6] = this.minfo.split("\n")[0] + " ...";
+			String[] tokens = this.minfo.split("\n");
+			fields[6] = tokens[0];
+			if (tokens.length > 1) {
+				fields[6] += " ...";
+			}
 		}
 		
 		return fields;

@@ -172,7 +172,9 @@ public class ManetLoggerService extends Service{
 	public void clearLog(){
 		Log.i(TAG, "Clear log");
 		helper.deleteLog();
-		helper.createLog();
+		if (isLogging()) {
+			helper.createLog();
+		}
 	}
 	
     public void requestLocationEnable(){
