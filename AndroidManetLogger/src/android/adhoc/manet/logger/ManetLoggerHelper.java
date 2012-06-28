@@ -41,6 +41,8 @@ public class ManetLoggerHelper implements ManetObserver {
     private int batt_temp = 0;
     private String timestamp = "waiting ...";
     private String minfo = "none";
+    private String rinfo = null;
+    private AdhocStateEnum state = null;
      
     private static final String LOG_FILE = Environment.getExternalStorageDirectory() + "/manet.log";
     
@@ -179,7 +181,7 @@ public class ManetLoggerHelper implements ManetObserver {
 		} else {
 			String manetInfo = minfo.trim();
 			manetInfo = manetInfo.replace("\n\n", ", ");
-			manetInfo = manetInfo.replace("\n", " ");
+			manetInfo = manetInfo.replace("\n", ";     ");
 			return manetInfo;
 		}
 	}
@@ -187,12 +189,13 @@ public class ManetLoggerHelper implements ManetObserver {
 	private class GetManetInfoThread extends Thread {
 		@Override
 		public void run() {
-			minfo = null;
+			rinfo = null;
 			if (manet.isConnectedToService()) {
 				manet.sendRoutingInfoQuery();
-				while (minfo == null) {
+				while (state.equals(AdhocStateEnum.STARTED) && rinfo == null) {
 					Thread.yield();
 				}
+				minfo = rinfo;
 			}
 		}
 	}
@@ -235,12 +238,14 @@ public class ManetLoggerHelper implements ManetObserver {
 	@Override
 	public void onServiceConnected() {
 		// TODO Log service connection
+		manet.sendAdhocStatusQuery(); // get initial state
 	}
 	
 	@Override
 	public void onAdhocStateUpdated(AdhocStateEnum state, String info) {
 		// TODO Log adhoc state
 		// System.out.println("onAdhocStateUpdated"); // DEBUG
+		this.state = state;
 	}
 	
 	@Override
@@ -256,7 +261,7 @@ public class ManetLoggerHelper implements ManetObserver {
 	@Override
 	public void onRoutingInfoUpdated(String info) {
 		// TODO Auto-generated method stub
-		minfo = info;
+		rinfo = info;
 	}
 	
 	@Override
