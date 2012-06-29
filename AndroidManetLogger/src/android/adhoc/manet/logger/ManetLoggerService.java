@@ -44,14 +44,14 @@ public class ManetLoggerService extends Service{
 	private final IBinder mBinder = new ManetLogBinder();
 	
 	// preference management
-	private static SharedPreferences sharedPrefs = null;
+	private SharedPreferences sharedPrefs = null;
 	
 	// notification management
-	private static NotificationManager notificationManager = null;
+	private NotificationManager notificationManager = null;
 	
 	// power management
-	private static PowerManager powerManager = null;
-	private static PowerManager.WakeLock wakeLock = null;
+	private PowerManager powerManager = null;
+	private PowerManager.WakeLock wakeLock = null;
 	
 	// unique id for the notification
 	private static final int NOTIFICATION_ID = 0;

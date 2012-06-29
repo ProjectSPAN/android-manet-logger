@@ -92,9 +92,11 @@ public class ManetLoggerHelper implements ManetObserver {
 		try {
 			if (file != null) {
 				fWriter.close();
-				file.delete();
-				file = null;
+			} else {
+				file = new File(LOG_FILE);
 			}
+			file.delete();
+			file = null;
 		} catch(Exception e){
 			e.printStackTrace();
 		}
