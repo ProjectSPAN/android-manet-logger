@@ -43,6 +43,8 @@ public final class R {
         public static final int global_service_name=0x7f040000;
         public static final int hello=0x7f040001;
         public static final int latitude=0x7f040003;
+        public static final int logger_activity_connect=0x7f04000a;
+        public static final int logger_activity_connect_summary=0x7f04000b;
         public static final int longitude=0x7f040004;
         public static final int minfo=0x7f040009;
         public static final int temperature=0x7f040006;

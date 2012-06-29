@@ -42,7 +42,7 @@ public class ManetLoggerHelper implements ManetObserver {
     private String timestamp = "waiting ...";
     private String minfo = "none";
     private String rinfo = null;
-    private AdhocStateEnum state = null;
+    private AdhocStateEnum state = AdhocStateEnum.UNKNOWN;
      
     private static final String LOG_FILE = Environment.getExternalStorageDirectory() + "/manet.log";
     

@@ -10,4 +10,6 @@
     <string name="voltage">Voltage:</string>
     <string name="timestamp">Timestamp:</string>
     <string name="minfo">ManetInfo:</string>
+    <string name="logger_activity_connect">Connect Logger Service</string>
+    <string name="logger_activity_connect_summary">Please wait while connecting...</string> 
 </resources>

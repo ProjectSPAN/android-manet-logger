@@ -10,6 +10,8 @@ import java.util.TimerTask;
 
 import android.adhoc.manet.logger.ManetLoggerService;
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -41,9 +43,14 @@ public class ManetLoggerActivity extends Activity {
 	
 	private static int UPDATE_WAIT_TIME_MILLISEC = 1000;
 	
+	private static int ID_DIALOG_CONNECTING = 0;
+	
 	private Timer timer = null;
 	
 	private Handler handler = new Handler();
+	
+	private ProgressDialog progressDialog = null;
+	private int currDialogId = -1;
 	
 	private ToggleButton btnOnOff = null;
 	private Button btnClearLog = null;
@@ -68,7 +75,6 @@ public class ManetLoggerActivity extends Activity {
 	  			} else {
 	  				logService.endLogging();
 	  			}
-	  			logService.showNotification();
 	  		}
 		});
         
@@ -79,6 +85,10 @@ public class ManetLoggerActivity extends Activity {
 	  		}
 		});
 	  	
+		// connect to logger service
+	  	currDialogId = ID_DIALOG_CONNECTING;
+        showDialog(ID_DIALOG_CONNECTING);
+		
    		// start logger service so that it runs even if no active activities are bound to it
    		startService(new Intent(this, ManetLoggerService.class));
     }
@@ -115,6 +125,35 @@ public class ManetLoggerActivity extends Activity {
 		unbindService(svcConnection);
     }
     
+    @Override
+    protected Dialog onCreateDialog(int id) {
+    	if (id == ID_DIALOG_CONNECTING) {
+    		progressDialog = new ProgressDialog(this);
+	    	progressDialog.setTitle(getString(R.string.logger_activity_connect));
+	    	progressDialog.setMessage(getString(R.string.logger_activity_connect_summary));
+	    	progressDialog.setIndeterminate(false);
+	    	progressDialog.setCancelable(true);
+	        return progressDialog;  		
+    	} 
+    	return null;
+    }
+    
+    @Override
+    protected Dialog onCreateDialog(int id, Bundle args){
+    	if (id == ID_DIALOG_CONNECTING) {
+    		return onCreateDialog(id);
+    	}
+    	return null;
+    }
+    
+ 	private void dismissDialog() {
+		// dismiss dialog
+		if (currDialogId != -1) {
+			super.dismissDialog(currDialogId);
+			currDialogId = -1;
+		}
+ 	}
+    
 	private ServiceConnection svcConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder binder) {
@@ -132,10 +171,7 @@ public class ManetLoggerActivity extends Activity {
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				if (logService != null && logService.isLogging()) {
-					fields = logService.getLatestLogInfo();
-					handler.post(new UpdateRunnable());
-				}
+				handler.post(new UpdateRunnable());
 			}
 		}, 0, UPDATE_WAIT_TIME_MILLISEC);
 	}
@@ -143,20 +179,27 @@ public class ManetLoggerActivity extends Activity {
     private class UpdateRunnable implements Runnable {
 		 @Override
 		 public void run() {
-			 TextView t = (TextView)findViewById(R.id.timestamp);
-			 t.setText(fields[_TIMESTAMP]);
-			 t = (TextView)findViewById(R.id.latitude);
-			 t.setText(fields[_LATITUDE]);
-			 t = (TextView)findViewById(R.id.longitude);
-			 t.setText(fields[_LONGITUDE]);
-			 t = (TextView)findViewById(R.id.battery);
-			 t.setText(fields[_BATTERY]);
-			 t = (TextView)findViewById(R.id.voltage);
-			 t.setText(fields[_VOLTAGE]);
-			 t = (TextView)findViewById(R.id.temperature);
-			 t.setText(fields[_TEMPERATURE]);
-			 t = (TextView)findViewById(R.id.minfo);
-			 t.setText(fields[_MINFO]);
+			 if (logService != null) {
+				 btnOnOff.setChecked(logService.isLogging());
+				 dismissDialog();
+				 if (logService.isLogging()) {
+					 fields = logService.getLatestLogInfo();
+					 TextView t = (TextView)findViewById(R.id.timestamp);
+					 t.setText(fields[_TIMESTAMP]);
+					 t = (TextView)findViewById(R.id.latitude);
+					 t.setText(fields[_LATITUDE]);
+					 t = (TextView)findViewById(R.id.longitude);
+					 t.setText(fields[_LONGITUDE]);
+					 t = (TextView)findViewById(R.id.battery);
+					 t.setText(fields[_BATTERY]);
+					 t = (TextView)findViewById(R.id.voltage);
+					 t.setText(fields[_VOLTAGE]);
+					 t = (TextView)findViewById(R.id.temperature);
+					 t.setText(fields[_TEMPERATURE]);
+					 t = (TextView)findViewById(R.id.minfo);
+					 t.setText(fields[_MINFO]);
+				 }
+			 }
 		 }
    };    
 }
