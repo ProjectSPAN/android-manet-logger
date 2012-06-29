@@ -41,7 +41,7 @@ public class ManetLoggerActivity extends Activity {
 	private static int _TEMPERATURE = 5;
 	private static int _MINFO = 6;
 	
-	private static int UPDATE_WAIT_TIME_MILLISEC = 1000;
+	private static int UPDATE_WAIT_TIME_MILLISEC = 10000; // TODO: DEBUG
 	
 	private static int ID_DIALOG_CONNECTING = 0;
 	
@@ -59,6 +59,7 @@ public class ManetLoggerActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate()"); // DEBUG
         
         setContentView(R.layout.main);
         
@@ -84,7 +85,13 @@ public class ManetLoggerActivity extends Activity {
 	  			logService.clearLog();
 	  		}
 		});
-	  	
+    }
+    
+    @Override
+    public void onPostCreate(Bundle savedInstanceState) {
+    	super.onPostCreate(savedInstanceState);
+        Log.d(TAG, "onPostCreate()"); // DEBUG
+        
 		// connect to logger service
 	  	currDialogId = ID_DIALOG_CONNECTING;
         showDialog(ID_DIALOG_CONNECTING);
@@ -96,6 +103,7 @@ public class ManetLoggerActivity extends Activity {
     @Override
     public void onPause(){
     	super.onPause();
+        Log.d(TAG, "onPause()"); // DEBUG
     	
 		if(timer != null){
 			timer.cancel();
@@ -105,6 +113,7 @@ public class ManetLoggerActivity extends Activity {
     @Override
     public void onResume(){
     	super.onResume();
+        Log.d(TAG, "onResume()"); // DEBUG
     	
 		TextView t = (TextView)findViewById(R.id.timestamp);
 		t.setText("Waiting ...");
@@ -117,6 +126,7 @@ public class ManetLoggerActivity extends Activity {
     @Override
     public void onDestroy(){
 		super.onDestroy();
+        Log.d(TAG, "onDestroy()"); // DEBUG
 		
 		if(timer != null){
 			timer.cancel();
@@ -140,16 +150,17 @@ public class ManetLoggerActivity extends Activity {
     
     @Override
     protected Dialog onCreateDialog(int id, Bundle args){
+    	Log.d(TAG, "onCreateDialog()"); // DEBUG
     	if (id == ID_DIALOG_CONNECTING) {
     		return onCreateDialog(id);
     	}
     	return null;
     }
     
- 	private void dismissDialog() {
-		// dismiss dialog
+ 	private void removeDialog() {
+    	Log.d(TAG, "removeDialog()"); // DEBUG
 		if (currDialogId != -1) {
-			super.dismissDialog(currDialogId);
+			super.removeDialog(currDialogId);
 			currDialogId = -1;
 		}
  	}
@@ -157,10 +168,12 @@ public class ManetLoggerActivity extends Activity {
 	private ServiceConnection svcConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder binder) {
+	        Log.d(TAG, "onServiceConnected()"); // DEBUG
 			logService = ((ManetLoggerService.ManetLogBinder) binder).getService();
 		}
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
+	        Log.d(TAG, "onServiceDisconnected()"); // DEBUG
 			logService = null;
 		}
 	};
@@ -181,7 +194,7 @@ public class ManetLoggerActivity extends Activity {
 		 public void run() {
 			 if (logService != null) {
 				 btnOnOff.setChecked(logService.isLogging());
-				 dismissDialog();
+				 removeDialog();
 				 if (logService.isLogging()) {
 					 fields = logService.getLatestLogInfo();
 					 TextView t = (TextView)findViewById(R.id.timestamp);
