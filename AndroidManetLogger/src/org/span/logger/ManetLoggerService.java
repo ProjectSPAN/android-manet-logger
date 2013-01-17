@@ -2,7 +2,7 @@
 SPAN - Smart Phone AdHoc Networking project
 ©2012 The MITRE Corporation
 */
-package android.adhoc.manet.logger;
+package org.span.logger;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -251,7 +251,7 @@ public class ManetLoggerService extends Service{
     	// pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, DummyActivity.class), 0);
     	
     	Intent launchIntent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
-    	launchIntent.setComponent(new ComponentName("android.adhoc.manet.logger", "android.adhoc.manet.logger.ManetLoggerActivity"));
+    	launchIntent.setComponent(new ComponentName("org.span.logger", "org.span.logger.ManetLoggerActivity"));
     	pendingIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
     	
     	// don't allow user to clear notification

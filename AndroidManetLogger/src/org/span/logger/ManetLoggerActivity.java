@@ -2,13 +2,14 @@
 SPAN - Smart Phone AdHoc Networking project
 ©2012 The MITRE Corporation
 */
-package android.adhoc.manet.logger;
+package org.span.logger;
 
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.adhoc.manet.logger.ManetLoggerService;
+import org.span.logger.ManetLoggerService;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;

@@ -2,7 +2,7 @@
 SPAN - Smart Phone AdHoc Networking project
 ©2012 The MITRE Corporation
 */
-package android.adhoc.manet.logger;
+package org.span.logger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -10,11 +10,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 
-import android.adhoc.manet.ManetHelper;
-import android.adhoc.manet.ManetObserver;
-import android.adhoc.manet.routing.Node;
-import android.adhoc.manet.service.ManetService.AdhocStateEnum;
-import android.adhoc.manet.system.ManetConfig;
+import org.span.service.ManetHelper;
+import org.span.service.ManetObserver;
+import org.span.service.routing.Node;
+import org.span.service.core.ManetService.AdhocStateEnum;
+import org.span.service.system.ManetConfig;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
